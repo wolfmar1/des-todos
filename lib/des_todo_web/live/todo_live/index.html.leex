@@ -1,0 +1,48 @@
+<h1>Listing Todos</h1>
+
+<%= if @live_action in [:new, :edit] do %>
+  <%= live_modal @socket, DesTodoWeb.TodoLive.FormComponent,
+    id: @todo.id || :new,
+    title: @page_title,
+    action: @live_action,
+    todo: @todo,
+    return_to: Routes.todo_index_path(@socket, :index) %>
+<% end %>
+
+<form phx-change="filter">
+  <div>
+    <%= checkbox(:filter, :filter, value: @hide_done)  %>
+    <label>nur aktuelle</label>
+  </div>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Theme</th>
+      <th>Due</th>
+      <th>Done</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="todos">
+    <%= for todo <- @todos do %>
+      <tr id="todo-<%= todo.id %>">
+        <td><%= todo.date %></td>
+        <td><%= todo.theme %></td>
+        <td><%= todo.due %></td>
+        <td style="color: <%= if todo.done do 'black' else 'red' end%>;"><%= todo.done %></td>
+
+        <td>
+          <span><%= live_redirect "Show", to: Routes.todo_show_path(@socket, :show, todo) %></span>
+          <span><%= live_patch "Edit", to: Routes.todo_index_path(@socket, :edit, todo) %></span>
+          <span><%= link "Delete", to: "#", phx_click: "delete", phx_value_id: todo.id, data: [confirm: "Are you sure?"] %></span>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<span><%= live_patch "New Todo", to: Routes.todo_index_path(@socket, :new) %></span>
